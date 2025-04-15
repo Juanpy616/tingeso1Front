@@ -22,6 +22,7 @@ import ListReservations from './components/ListReservations';
                 <Route path="/" element={<Home/>} />
                 <Route path="*" element={<NotFound/>} />
                 <Route path="/reservas/add" element={<AddReservation/>} />
+                <Route path="/reservas/edit/:id" element={<AddReservation/>} />
                 <Route path="/reservas" element={<ListReservations/>} />
               </Routes>
             </div>
