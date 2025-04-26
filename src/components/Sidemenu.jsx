@@ -55,6 +55,13 @@ export default function Sidemenu({ open, toggleDrawer }) {
           <ListItemText primary="Resumen de ganancias" />
         </ListItemButton>
 
+        <ListItemButton onClick={() => navigate("/karts")}>
+          <ListItemIcon>
+            <HailIcon />
+          </ListItemIcon>
+          <ListItemText primary="Karts" />
+        </ListItemButton>
+
  
       </List>
 

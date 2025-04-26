@@ -11,6 +11,9 @@ import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import AddReservation from './components/AddReservation';
 import ListReservations from './components/ListReservations';
+import Rack from './components/Rack';
+import ListKarts from './components/ListKarts';
+import AddKarts from './components/AddKarts';
 
 
   function App() {
@@ -24,6 +27,9 @@ import ListReservations from './components/ListReservations';
                 <Route path="/reservas/add" element={<AddReservation/>} />
                 <Route path="/reservas/edit/:id" element={<AddReservation/>} />
                 <Route path="/reservas" element={<ListReservations/>} />
+                <Route path="/rack" element={<Rack/>} />
+                <Route path="/karts" element={<ListKarts/>}/>
+                <Route path="/karts/add" element={<AddKarts/>}/>
               </Routes>
             </div>
         </Router>

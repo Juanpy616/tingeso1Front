@@ -37,6 +37,11 @@ const ListReservations = () => {
     init();
   }, []);
 
+  const handleAddVouchers = (id) => {
+    console.log("Adding vouchers for reservation", id);
+    navigate(`/reservas/${id}/vouchers`); // Redirige a la página para agregar vouchers
+  };
+
   const handleDelete = (id) => {
     console.log("Printing id", id);
     const confirmDelete = window.confirm(
@@ -95,6 +100,9 @@ const ListReservations = () => {
               Hora de Inicio
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
+            Hora de Fin
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: "bold" }}>
               Cantidad de Personas
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: "bold" }}>
@@ -112,6 +120,7 @@ const ListReservations = () => {
               <TableCell align="left">{reservation.duration}</TableCell>
               <TableCell align="left">{reservation.date}</TableCell>
               <TableCell align="right">{reservation.startTime}</TableCell>
+              <TableCell align="right">{reservation.endTime}</TableCell>
               <TableCell align="right">{reservation.quantity}</TableCell>
               <TableCell align="right">{reservation.clientName}</TableCell>
               <TableCell>
@@ -120,7 +129,7 @@ const ListReservations = () => {
                   color="info"
                   size="small"
                   onClick={() => handleEdit(reservation.id)}
-                  style={{ marginLeft: "0.5rem" }}
+                  style={{ marginLeft: "0.3rem" }}
                   startIcon={<EditIcon />}
                 >
                   Editar
@@ -131,7 +140,7 @@ const ListReservations = () => {
                   color="error"
                   size="small"
                   onClick={() => handleDelete(reservation.id)}
-                  style={{ marginLeft: "0.5rem" }}
+                  style={{ marginLeft: "0.3rem" }}
                   startIcon={<DeleteIcon />}
                 >
                   Eliminar

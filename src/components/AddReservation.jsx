@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link, useParams, useNavigate, Form } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import reservationService from "../services/reservation.service";
+import voucherService from "../services/voucher.service";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
@@ -18,42 +19,71 @@ const AddReservation = () => {
     const [clientName, setClientName] = useState("");
     const [date, setDate] = useState("");
     const [startTime, setStartTime] = useState("");
-    const [quantity, setQuantity] = useState("");
+    const [quantity, setQuantity] = useState(1);
     const [duration, setDuration] = useState("");
+    const [vouchers, setVouchers] = useState([]);
     const { id } = useParams();
     const [titleReservationForm, setTitleReservationForm] = useState("");
     const navigate = useNavigate();
 
-    const saveReservation = (r) => {
+    // Inicializar los vouchers cuando cambia la cantidad
+    useEffect(() => {
+        setVouchers(
+            Array.from({ length: quantity }, () => ({
+                clientName: "",
+                clientEmail: "",
+                basePrice: 0,
+                specialDiscount: 0,
+                sizeDiscount: 0,
+                priceAfterDiscount: 0,
+                iva: 0,
+                finalPrice: 0,
+            }))
+        );
+    }, [quantity]);
+
+    // Manejar cambios en los campos de los vouchers
+    const handleVoucherChange = (index, field, value) => {
+        const updatedVouchers = [...vouchers];
+        updatedVouchers[index][field] = value;
+        setVouchers(updatedVouchers);
+    };
+
+    // Guardar la reserva y los vouchers
+    const saveReservation = async (r) => {
         r.preventDefault();
 
         const reservation = { clientName, date, startTime, quantity, duration, id };
-        if (id) {
-            reservationService
-                .update(reservation)
-                .then((response) => {
-                    console.log("Se actualizó la reserva.", response.data);
-                    navigate("/reservas");
-                })
-                .catch((error) => {
-                    console.log(
-                        "Ha ocurrido un error al intentar actualizar datos del empleado.",
-                        error
-                    );
-                });
-        } else {
-            reservationService
-                .create(reservation)
-                .then((response) => {
-                    console.log("Reserva ha sido añadida.", response.data);
-                    navigate("/reservas");
-                })
-                .catch((error) => {
-                    console.log(
-                        "Ha ocurrido un error al intentar hacer reserva.",
-                        error
-                    );
-                });
+
+        try {
+            let savedReservation;
+            if (id) {
+                // Actualizar reserva existente
+                const response = await reservationService.update(reservation);
+                console.log("Se actualizó la reserva.", response.data);
+                savedReservation = response.data;
+            } else {
+                // Crear nueva reserva
+                const response = await reservationService.create(reservation);
+                console.log("Reserva ha sido añadida.", response.data);
+                savedReservation = response.data;
+            }
+
+            // Asignar el ID de la reserva a los vouchers
+            const vouchersWithReservationId = vouchers.map((voucher) => ({
+                ...voucher,
+                reservationId: savedReservation.id,
+            }));
+
+            // Crear los vouchers
+            await Promise.all(
+                vouchersWithReservationId.map((voucher) => voucherService.create(voucher))
+            );
+
+            console.log("Vouchers creados exitosamente.");
+            navigate("/reservas");
+        } catch (error) {
+            console.error("Error al guardar la reserva o los vouchers:", error);
         }
     };
 
@@ -70,12 +100,12 @@ const AddReservation = () => {
                     setDuration(reservation.data.duration);
                 })
                 .catch((error) => {
-                    console.log("Se ha producido un error.", error);
+                    console.log("Se produjo un error.", error);
                 });
         } else {
             setTitleReservationForm("Nueva Reserva");
         }
-    }, []);
+    }, [id]);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -177,53 +207,65 @@ const AddReservation = () => {
 
                 <br />
 
-                <h2> Detalles de pago </h2>
-                <div style={{ display: "flex", gap: 16 }}>
-                    <FormControl sx={{ flex: 1 }}>
-                        <TextField
-                            color="info"
-                            label="Nombre"
-                            variant="filled"
-                        />
-                    </FormControl>
+                <h2> Detalles de los Vouchers </h2>
+                {vouchers.map((voucher, index) => (
+                    <div key={index}>
+                        <div style={{ display: "flex", gap: 16 }}>
+                            <FormControl sx={{ flex: 1 }}>
+                                <TextField
+                                    color="info"
+                                    label="Nombre"
+                                    variant="filled"
+                                    value={voucher.clientName}
+                                    onChange={(e) =>
+                                        handleVoucherChange(index, "clientName", e.target.value)
+                                    }
+                                />
+                            </FormControl>
 
-                    <FormControl sx={{ flex: 1 }}>
-                        <TextField
-                            color="info"
-                            label="Email"
-                            variant="filled"
-                            type="email"
-                        />
-                    </FormControl>
-                </div>
+                            <FormControl sx={{ flex: 1 }}>
+                                <TextField
+                                    color="info"
+                                    label="Email"
+                                    variant="filled"
+                                    type="email"
+                                    value={voucher.clientEmail}
+                                    onChange={(e) =>
+                                        handleVoucherChange(index, "clientEmail", e.target.value)
+                                    }
+                                />
+                            </FormControl>
+                        </div>
 
-                <div style={{ display: "flex", gap: 16 }}>
-                    <FormControl sx={{ flex: 1 }}>
-                        <TextField
-                            color="info"
-                            label="Tarifa Base"
-                            variant="filled"
-                            type="number"
-                            helperText="Si no se especifica, se toma el valor por defecto"
-                            slotProps={{
-                                input: { min: 1 },
-                            }}
-                        />
-                    </FormControl>
+                        <div style={{ display: "flex", gap: 16 }}>
+                            <FormControl sx={{ flex: 1 }}>
+                                <TextField
+                                    color="info"
+                                    label="Tarifa Base"
+                                    variant="filled"
+                                    type="number"
+                                    value={voucher.basePrice}
+                                    onChange={(e) =>
+                                        handleVoucherChange(index, "basePrice", parseFloat(e.target.value))
+                                    }
+                                />
+                            </FormControl>
 
-                    <FormControl sx={{ flex: 1 }}>
-                        <TextField
-                            color="info"
-                            label="Descuento"
-                            variant="filled"
-                            type="number"
-                            helperText="Si no se especifica, se aplica el descuento de cliente frecuente"
-                            slotProps={{
-                                input: { min: 0, max: 100 },
-                            }}
-                        />
-                    </FormControl>
-                </div>
+                            <FormControl sx={{ flex: 1 }}>
+                                <TextField
+                                    color="info"
+                                    label="Descuento"
+                                    variant="filled"
+                                    type="number"
+                                    value={voucher.specialDiscount}
+                                    onChange={(e) =>
+                                        handleVoucherChange(index, "specialDiscount", parseFloat(e.target.value))
+                                    }
+                                />
+                            </FormControl>
+                        </div>
+                    </div>
+                ))}
 
                 <FormControl>
                     <Button
