@@ -3,7 +3,7 @@ pipeline {
     stages{
         stage('Build'){
             steps{
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Juanpy616/tingeso1Front.git']]])
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Juanpy616/tingeso1Front.git']]])
                 bat 'npm install'
                 bat 'npm run build'
             }
@@ -18,7 +18,7 @@ pipeline {
         stage('Push image to Docker Hub'){
             steps{
                 script{
-                   withCredentials([string(credentialsId: 'dhpswid', variable: 'dhpsw')]) {
+                   withCredentials([string(credentialsId: 'dockerhubpassword', variable: 'dhpsw')]) {
                         bat 'docker login -u juanpy616 -p %dhpsw%'
                    }
                    bat 'docker push juanpy616/tgs1front:latest'
