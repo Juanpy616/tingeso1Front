@@ -37,10 +37,7 @@ const ListReservations = () => {
     init();
   }, []);
 
-  const handleAddVouchers = (id) => {
-    console.log("Adding vouchers for reservation", id);
-    navigate(`/reservas/${id}/vouchers`); // Redirige a la página para agregar vouchers
-  };
+
 
   const handleDelete = (id) => {
     console.log("Printing id", id);

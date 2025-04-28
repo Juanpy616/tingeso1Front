@@ -14,7 +14,7 @@ import ListReservations from './components/ListReservations';
 import Rack from './components/Rack';
 import ListKarts from './components/ListKarts';
 import AddKarts from './components/AddKarts';
-
+import Analytics from './components/Analytics';
 
   function App() {
     return (
@@ -30,6 +30,7 @@ import AddKarts from './components/AddKarts';
                 <Route path="/rack" element={<Rack/>} />
                 <Route path="/karts" element={<ListKarts/>}/>
                 <Route path="/karts/add" element={<AddKarts/>}/>
+                <Route path="/resumen" element={<Analytics/>}/>
               </Routes>
             </div>
         </Router>
